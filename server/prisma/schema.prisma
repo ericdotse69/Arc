@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  passwordHash String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  sessions  Session[]
+  tasks     Task[]
+
+  @@map("users")
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sessions    Session[]
+
+  @@map("tasks")
+}
+
+model Session {
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId        Int?      // optional link to a task
+  task          Task?     @relation(fields: [taskId], references: [id])
+  startTime     DateTime
+  endTime       DateTime?
+  totalDuration Int?      // in seconds
+  category      String    // e.g., "Data Analysis"
+  cognitiveLoad Int?      // 1-10 scale
+  distractions  Int       @default(0) // number of interruptions
+  flowScore     Int?      // 0-100 calculated score
+  status        String    // "completed" or "interrupted"
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("sessions")
+}

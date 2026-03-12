@@ -1,0 +1,10 @@
+services:
+  arcserver:
+    image: arcserver
+    build:
+      context: server
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
